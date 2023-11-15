@@ -351,8 +351,8 @@ class Resolver:
 
         fields['prefix'] = sections[0]
         fields['tsid'] = sections[1]
-        fields['data'] = sections[2]
-        fields['hmac'] = sections[3]
+        fields['data'] = sections[2] + sections[3]
+        fields['hmac'] = sections[4]
         return fields
 
     def increment_seq(self, seq):
@@ -442,11 +442,11 @@ class Resolver:
             full_msg = full_msg + self.config['worker'].agents[channel].client_msg_queue[it]
             it = it + 1
 
-        bytes_object = bytes.fromhex(full_msg)
-        decoded_msg = bytes_object.decode("ASCII")
+        # bytes_object = bytes.fromhex(full_msg)
+        # decoded_msg = bytes_object.decode("ASCII")
         seq = self.increment_seq(seq)
         self.config['worker'].agents[channel].renew_client_msg_queue(seq)  # restart queue
-        return decoded_msg
+        return full_msg
 
     def parse_pack(self):
         pass
