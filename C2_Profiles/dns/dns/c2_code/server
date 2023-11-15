@@ -90,7 +90,7 @@ class Agent_Con:
         # self.th.join()
 
     def get_packet_size(self):
-        packet_size = 255 - self.channel - 6  # 6 = seq size
+        packet_size = 200 - self.channel - 6  # 6 = seq size
         return packet_size
 
     # TODO convert to thread
