@@ -149,6 +149,7 @@ class Resolver:
         qclass = request.questions[0].qclass
         qname = str(request.questions[0].qname)
         qtype = request.questions[0].qtype
+        questions = [str(q.qname) for q in request.questions]
 
 
         # 1) query received
@@ -182,7 +183,7 @@ class Resolver:
                 found = True
                 
         if found == True:
-            fields = self.get_fields(qname, msgtype, domain_found)
+            fields = self.get_fields_new(questions, msgtype, domain_found)
 
         if found == False or fields == None or self.hmac_check(fields, msgtype, self.instances[inst]['key']) == False:
 
@@ -354,6 +355,23 @@ class Resolver:
         fields['data'] = sections[2] + sections[3]
         fields['hmac'] = sections[4]
         return fields
+    
+    def get_fields_new(self, questions, msgtype, domain):
+        fields = {}
+        sections_prev = questions[0].split(domain)
+        sections = sections_prev[0].split(".")
+        fields['prefix'] = sections[0]
+        fields['tsid'] = sections[1]
+        fields['hmac'] = sections[4]
+        fields['datahmac'] = sections[2]+sections[3]
+        fields['data'] = ""
+        for question in questions:
+            sections_prev = question.split(domain)
+            sections = sections_prev[0].split(".")
+            data = sections[2] + sections[3]
+            fields['data'] += data
+        
+        return fields
 
     def increment_seq(self, seq):
         seq = seq + 1
@@ -363,7 +381,7 @@ class Resolver:
 
     def hmac_check(self, fields, msgtype, key):
 
-        hmac_ch = hmac.new(key.encode(), (fields['tsid'] + fields['data']).encode('utf-8'), hashlib.md5).hexdigest()
+        hmac_ch = hmac.new(key.encode(), (fields['tsid'] + fields['datahmac']).encode('utf-8'), hashlib.md5).hexdigest()
         if hmac_ch == fields['hmac']:
             return True
         else:
@@ -514,6 +532,7 @@ async def agent_message(request, **kwargs):
         return server_error_handler(request, e)
 """
 
+os.environ['MYTHIC_ADDRESS'] = 'http://34.41.225.176:17443/agent_message'
 if __name__ == "__main__":
     sys.path.append("/Mythic/mythic")
     from mythic_container.C2ProfileBase import *
