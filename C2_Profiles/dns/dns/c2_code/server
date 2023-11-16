@@ -532,7 +532,6 @@ async def agent_message(request, **kwargs):
         return server_error_handler(request, e)
 """
 
-os.environ['MYTHIC_ADDRESS'] = 'http://34.41.225.176:17443/agent_message'
 if __name__ == "__main__":
     sys.path.append("/Mythic/mythic")
     from mythic_container.C2ProfileBase import *
