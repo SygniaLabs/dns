@@ -257,7 +257,9 @@ class Resolver:
                             # check if the requested id of the packet is above the messages id:
                             # this means the agent received all the messages and is confirming the server that it will start replying
                             try:
-                                packet = self.config['worker'].agents[channel_offer].get_packet(seq)
+                                packets = []
+                                for i in range(40):
+                                    packets.append(self.config['worker'].agents[channel_offer].get_packet(seq+i))
                                 
                             except Exception as e:
                                 
@@ -267,10 +269,13 @@ class Resolver:
                             # packet will have no content and bit will be flipped
                                 bit_flip = str(self.config['worker'].agents[channel_offer].bit_flip)
                         
+                        if len(packets) == 0:
+                            packets.append(packet)
                         new_tsid = "{:02x}".format(channel_offer) + "{:06x}".format(seq)
-                        msg_reply = new_tsid + "." + str(bit_flip) + "." + str(packet)
+                        msg_replies = [new_tsid + "." + str(bit_flip) + "." + str(packet) for packet in packets]
                         reply = request.reply()
-                        reply.add_answer(RR(qname, qtype, rdata=TXT(msg_reply)))
+                        for msg_reply in msg_replies:
+                            reply.add_answer(RR(qname, qtype, rdata=TXT(msg_reply)))
                     else:
                         # data from agent
                         try:
