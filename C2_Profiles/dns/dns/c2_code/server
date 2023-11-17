@@ -258,7 +258,7 @@ class Resolver:
                             # this means the agent received all the messages and is confirming the server that it will start replying
                             try:
                                 packets = []
-                                for i in range(40):
+                                for i in range(1):
                                     packets.append(self.config['worker'].agents[channel_offer].get_packet(seq+i))
                                 
                             except Exception as e:
